@@ -1,0 +1,32 @@
+workflows:
+  ios_testflight:
+    name: iOS → TestFlight (auto-sign)
+    environment:
+      flutter: stable
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.acarg.americanoscoreboard
+      vars:
+        BUNDLE_ID: com.acarg.americanoscoreboard
+        APP_STORE_APP_ID: 6751535630   
+    integrations:
+      app_store_connect: Gokhan Code Signing Cert (Americano)
+    scripts:
+      - name: Flutter pub get
+        script: flutter pub get
+      - name: Set build number from Codemagic
+        script: |
+          # Uses Codemagic build number to bump iOS build
+          BUILD_NUMBER=${CM_BUILD_ID:-1}
+          /usr/libexec/PlistBuddy -c "Set CFBundleVersion $BUILD_NUMBER" ios/Runner/Info.plist
+      - name: Build iOS IPA
+        script: flutter build ipa --release
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - flutter_drive.log
+    publishing:
+      app_store_connect:
+        apple_id: "$APP_STORE_APP_ID"
+        submit_to_testflight: true
+        # Set to true when you’re ready for external testers:
+        # submit_to_beta_review: true
