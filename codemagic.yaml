@@ -8,15 +8,14 @@ workflows:
         bundle_identifier: com.acarg.americanoscoreboard
       vars:
         BUNDLE_ID: com.acarg.americanoscoreboard
-        APP_STORE_APP_ID: 6751535630   
+        APP_STORE_APP_ID: 6751535630
     integrations:
-      app_store_connect: Gokhan Code Signing Cert (Americano)
+      app_store_connect: "Gokhan Code Signing Cert (Americano)"  # quote if name has spaces/() 
     scripts:
       - name: Flutter pub get
         script: flutter pub get
       - name: Set build number from Codemagic
         script: |
-          # Uses Codemagic build number to bump iOS build
           BUILD_NUMBER=${CM_BUILD_ID:-1}
           /usr/libexec/PlistBuddy -c "Set CFBundleVersion $BUILD_NUMBER" ios/Runner/Info.plist
       - name: Build iOS IPA
@@ -26,7 +25,6 @@ workflows:
       - flutter_drive.log
     publishing:
       app_store_connect:
-        apple_id: "$APP_STORE_APP_ID"
+        auth: integration              # <-- use the UI integration
         submit_to_testflight: true
-        # Set to true when you’re ready for external testers:
-        # submit_to_beta_review: true
+        # submit_to_beta_review: true  # enable when you want external testers
